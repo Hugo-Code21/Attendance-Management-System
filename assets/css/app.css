@@ -5,6 +5,11 @@
   --line: #e8edf2;
   --paper: #ffffff;
   --canvas: #f6f8fb;
+  --surface-soft: #fbfcfe;
+  --body-text: #536176;
+  --nav-text: #677487;
+  --field-border: #dfe5ec;
+  --row-border: #eff2f5;
   --navy: #17283d;
   --blue: #3769e8;
   --blue-soft: #edf2ff;
@@ -17,6 +22,27 @@
   font-family: "DM Sans", sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --ink: #e5edf7;
+  --muted: #9baabd;
+  --line: #2b3a4d;
+  --paper: #182536;
+  --canvas: #101a28;
+  --surface-soft: #1d2c3f;
+  --body-text: #c0ccda;
+  --nav-text: #b2bfd0;
+  --field-border: #3a4a5e;
+  --row-border: #2b3a4d;
+  --blue-soft: #263b66;
+  --green: #70d4a0;
+  --green-soft: #1d3e35;
+  --amber: #f0bd68;
+  --amber-soft: #49391f;
+  --red: #f08d98;
+  --red-soft: #472a35;
 }
 
 * {
@@ -50,6 +76,7 @@ select {
   z-index: 5;
 }
 .brand {
+  min-width: 0;
   display: inline-flex;
   align-items: center;
   gap: 11px;
@@ -57,6 +84,11 @@ select {
     800 17px Manrope,
     sans-serif;
   letter-spacing: -0.5px;
+}
+.brand > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .brand-mark,
 .auth-icon {
@@ -92,7 +124,11 @@ select {
   align-items: center;
 }
 .topbar-right {
-  gap: 20px;
+  gap: 10px;
+}
+.theme-toggle {
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 .user-chip {
   gap: 9px;
@@ -113,13 +149,13 @@ select {
 .sidebar {
   flex: 0 0 232px;
   padding: 34px 17px 24px;
-  background: #fbfcfe;
+  background: var(--surface-soft);
   border-right: 1px solid var(--line);
 }
 .nav-label,
 .eyebrow {
   margin: 0 0 9px;
-  color: #8996a6;
+  color: var(--muted);
   font-size: 10px;
   letter-spacing: 1.15px;
   font-weight: 700;
@@ -133,7 +169,7 @@ select {
   margin: 3px 0;
   padding: 11px 13px;
   border-radius: 8px;
-  color: #677487;
+  color: var(--nav-text);
   font-weight: 600;
 }
 .nav-link:hover,
@@ -148,7 +184,7 @@ select {
   color: var(--muted);
   font-size: 12px;
   border: 1px solid var(--line);
-  background: white;
+  background: var(--paper);
   border-radius: 10px;
 }
 .sidebar-note strong {
@@ -165,6 +201,8 @@ select {
   background: #41b779;
 }
 .main-content {
+  flex: 1;
+  min-width: 0;
   width: min(100%, 1280px);
   padding: 37px 42px 64px;
   margin: 0 auto;
@@ -224,13 +262,13 @@ h2 {
   background: #2c5bd2;
 }
 .button-outline {
-  background: white;
+  background: var(--paper);
   color: var(--ink);
   border-color: var(--line);
 }
 .button-quiet {
-  background: white;
-  color: #627084;
+  background: var(--paper);
+  color: var(--muted);
   border-color: var(--line);
 }
 .button-wide {
@@ -324,11 +362,11 @@ table {
   text-align: left;
 }
 thead {
-  background: #fafbfd;
+  background: var(--surface-soft);
 }
 th {
   padding: 12px 18px;
-  color: #8793a2;
+  color: var(--muted);
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.7px;
@@ -337,8 +375,8 @@ th {
 }
 td {
   padding: 14px 18px;
-  border-top: 1px solid #eff2f5;
-  color: #536176;
+  border-top: 1px solid var(--row-border);
+  color: var(--body-text);
   font-size: 12px;
   vertical-align: middle;
 }
@@ -349,7 +387,7 @@ td strong {
 .table-sub {
   display: block;
   margin-top: 4px;
-  color: #98a3b1;
+  color: var(--muted);
   font-size: 11px;
 }
 .status,
@@ -384,7 +422,7 @@ td strong {
 }
 .status-pending {
   color: #758194;
-  background: #f0f2f5;
+  background: var(--surface-soft);
 }
 .role-tag {
   padding: 5px 9px;
@@ -402,6 +440,22 @@ td strong {
 .role-student {
   background: #edf5ee;
   color: #4f815c;
+}
+html[data-theme="dark"] .status-permission {
+  background: #283556;
+  color: #b2c0ff;
+}
+html[data-theme="dark"] .role-admin {
+  background: #382f52;
+  color: #d2baff;
+}
+html[data-theme="dark"] .role-teacher {
+  background: #203a4b;
+  color: #9bd5f5;
+}
+html[data-theme="dark"] .role-student {
+  background: #234135;
+  color: #a8ddb4;
 }
 .row-actions {
   text-align: right;
@@ -432,10 +486,10 @@ select,
 input:not([type="checkbox"]) {
   min-height: 40px;
   padding: 0 11px;
-  border: 1px solid #dfe5ec;
+  border: 1px solid var(--field-border);
   border-radius: 7px;
   color: var(--ink);
-  background: white;
+  background: var(--paper);
   outline: none;
 }
 select:focus,
@@ -460,7 +514,7 @@ input:focus {
   display: flex;
   flex-direction: column;
   gap: 7px;
-  color: #58667a;
+  color: var(--body-text);
   font-size: 12px;
   font-weight: 700;
 }
@@ -528,9 +582,9 @@ input:focus {
 }
 .date-pill {
   padding: 9px 13px;
-  background: white;
+  background: var(--paper);
   border: 1px solid var(--line);
-  color: #5c6a7d;
+  color: var(--body-text);
   font-size: 12px;
   font-weight: 700;
 }
@@ -563,15 +617,15 @@ input:focus {
   padding: 0 21px;
 }
 .form-stack input[readonly] {
-  background: #f9fafc;
-  color: #657287;
+  background: var(--surface-soft);
+  color: var(--body-text);
 }
 .submitted-card {
   margin: 0 21px;
   padding: 17px;
   display: flex;
   justify-content: space-between;
-  background: #f9fbff;
+  background: var(--surface-soft);
   border: 1px solid var(--line);
   border-radius: 9px;
 }
@@ -591,7 +645,7 @@ input:focus {
   gap: 13px;
   margin: 0 21px;
   padding: 16px;
-  background: #f7f8fa;
+  background: var(--surface-soft);
   border-radius: 9px;
 }
 .lock-icon {
@@ -601,7 +655,7 @@ input:focus {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: white;
+  background: var(--paper);
   color: var(--blue);
   font-size: 17px;
 }
@@ -697,7 +751,7 @@ input:focus {
   justify-content: space-between;
   gap: 12px;
   padding: 11px 0;
-  border-bottom: 1px solid #eff2f5;
+  border-bottom: 1px solid var(--row-border);
 }
 .profile-list dt {
   color: var(--muted);
@@ -736,6 +790,16 @@ input:focus {
   border-color: #c8e9d6;
   background: #f0fbf4;
 }
+html[data-theme="dark"] .alert-error {
+  color: #ffb4bc;
+  border-color: #673843;
+  background: #38232d;
+}
+html[data-theme="dark"] .alert-success {
+  color: #9be0b7;
+  border-color: #2d6047;
+  background: #1d352c;
+}
 .main-auth {
   display: grid;
   place-items: center;
@@ -744,7 +808,7 @@ input:focus {
 .auth-card {
   width: min(100%, 420px);
   padding: 36px;
-  background: white;
+  background: var(--paper);
   border: 1px solid var(--line);
   border-radius: 14px;
   box-shadow: 0 15px 45px #1b2a3d0d;
@@ -806,10 +870,23 @@ input:focus {
 @media (max-width: 640px) {
   .topbar {
     height: 62px;
-    padding: 0 16px;
+    padding: 0 12px;
+    gap: 8px;
   }
   .brand {
+    flex: 1 1 auto;
     font-size: 15px;
+  }
+  .topbar-right {
+    flex: 0 0 auto;
+    gap: 7px;
+  }
+  .theme-toggle {
+    min-height: 38px;
+    padding: 0 9px;
+  }
+  .theme-prefix {
+    display: none;
   }
   .user-chip {
     display: none;

@@ -86,6 +86,14 @@ function page_header(string $title): void
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= e($title) ?> · <?= e(APP_NAME) ?></title>
     <link rel="icon" href="<?= e(APP_ICON_PATH) ?>" type="image/svg+xml">
+    <script>
+        (() => {
+            const mode = localStorage.getItem('ams-theme') || 'system';
+            const isDark = mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            document.documentElement.dataset.themeMode = mode;
+            document.documentElement.dataset.theme = isDark ? 'dark' : 'light';
+        })();
+    </script>
     <link rel="stylesheet" href="assets/css/app.css">
     <script src="assets/js/app.js" defer></script>
 </head>
@@ -93,6 +101,7 @@ function page_header(string $title): void
 <header class="topbar">
     <a class="brand" href="dashboard.php"><span class="brand-mark"><img src="<?= e(APP_ICON_PATH) ?>" alt=""></span><span><?= e(APP_NAME) ?></span></a>
     <div class="topbar-right">
+        <button class="button button-quiet theme-toggle" type="button" data-theme-toggle aria-label="Color theme: System" title="Color theme: System. Activate to use light mode."><span class="theme-prefix">Theme: </span><span data-theme-label>System</span></button>
         <?php if ($user): ?><span class="user-chip"><?= e($user['full_name']) ?><small><?= e(ucfirst($user['role'])) ?></small></span>
             <form action="logout.php" method="post" class="inline-form">
                 <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">

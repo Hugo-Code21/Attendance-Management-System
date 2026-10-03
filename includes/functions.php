@@ -79,29 +79,25 @@ function page_header(string $title): void
 {
     $user = current_user();
     $flash = take_flash();
+    $theme = ($_COOKIE['ams-theme'] ?? '') === 'dark' ? 'dark' : 'light';
     ?><!doctype html>
-<html lang="id">
+<html lang="id" data-theme="<?= e($theme) ?>">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= e($title) ?> · <?= e(APP_NAME) ?></title>
     <link rel="icon" href="<?= e(APP_ICON_PATH) ?>" type="image/svg+xml">
-    <script>
-        (() => {
-            const mode = localStorage.getItem('ams-theme') || 'system';
-            const isDark = mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-            document.documentElement.dataset.themeMode = mode;
-            document.documentElement.dataset.theme = isDark ? 'dark' : 'light';
-        })();
-    </script>
-    <link rel="stylesheet" href="assets/css/app.css">
-    <script src="assets/js/app.js" defer></script>
+    <link rel="stylesheet" href="assets/css/app.css?v=<?= e((string) filemtime(dirname(__DIR__) . '/assets/css/app.css')) ?>">
+    <script src="assets/js/app.js?v=<?= e((string) filemtime(dirname(__DIR__) . '/assets/js/app.js')) ?>" defer></script>
 </head>
 <body>
 <header class="topbar">
     <a class="brand" href="dashboard.php"><span class="brand-mark"><img src="<?= e(APP_ICON_PATH) ?>" alt=""></span><span><?= e(APP_NAME) ?></span></a>
     <div class="topbar-right">
-        <button class="button button-quiet theme-toggle" type="button" data-theme-toggle aria-label="Color theme: System" title="Color theme: System. Activate to use light mode."><span class="theme-prefix">Theme: </span><span data-theme-label>System</span></button>
+        <button class="theme-switch" type="button" role="switch" aria-checked="<?= $theme === 'dark' ? 'true' : 'false' ?>" aria-label="Dark mode" title="Switch to <?= $theme === 'dark' ? 'light' : 'dark' ?> mode" data-theme-switch>
+            <span class="theme-switch-track" aria-hidden="true"><span class="theme-switch-thumb"></span></span>
+            <span>Dark mode</span>
+        </button>
         <?php if ($user): ?><span class="user-chip"><?= e($user['full_name']) ?><small><?= e(ucfirst($user['role'])) ?></small></span>
             <form action="logout.php" method="post" class="inline-form">
                 <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">

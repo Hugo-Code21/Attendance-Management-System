@@ -1,46 +1,41 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const themeToggle = document.querySelector('[data-theme-toggle]');
-    const themeLabel = document.querySelector('[data-theme-label]');
-    const colorScheme = window.matchMedia('(prefers-color-scheme: dark)');
-    const themeModes = ['system', 'light', 'dark'];
+    const themeSwitch = document.querySelector('[data-theme-switch]');
+    const themeModes = ['light', 'dark'];
+
+    const readCookieTheme = () => {
+        const themeCookie = document.cookie
+            .split(';')
+            .map((cookie) => cookie.trim())
+            .find((cookie) => cookie.startsWith('ams-theme='));
+        const mode = themeCookie ? themeCookie.slice('ams-theme='.length) : null;
+        return themeModes.includes(mode) ? mode : null;
+    };
+
+    const saveTheme = (mode) => {
+        const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+        document.cookie = `ams-theme=${mode}; Max-Age=31536000; Path=/; SameSite=Lax${secure}`;
+    };
 
     const applyTheme = (mode) => {
         if (!themeModes.includes(mode)) {
-            mode = 'system';
+            mode = 'light';
         }
-        const isDark = mode === 'dark' || (mode === 'system' && colorScheme.matches);
         document.documentElement.dataset.themeMode = mode;
-        document.documentElement.dataset.theme = isDark ? 'dark' : 'light';
-
-        if (themeLabel && themeToggle) {
-            const nextMode = themeModes[(themeModes.indexOf(mode) + 1) % themeModes.length];
-            const label = mode[0].toUpperCase() + mode.slice(1);
-            const nextLabel = nextMode[0].toUpperCase() + nextMode.slice(1);
-            themeLabel.textContent = label;
-            themeToggle.setAttribute('aria-label', `Color theme: ${label}`);
-            themeToggle.title = `Color theme: ${label}. Activate to use ${nextLabel.toLowerCase()} mode.`;
+        document.documentElement.dataset.theme = mode;
+        if (themeSwitch) {
+            const isDark = mode === 'dark';
+            themeSwitch.setAttribute('aria-checked', String(isDark));
+            themeSwitch.title = `Switch to ${isDark ? 'light' : 'dark'} mode`;
         }
     };
 
-    applyTheme(localStorage.getItem('ams-theme') || 'system');
+    const initialTheme = readCookieTheme() || document.documentElement.dataset.theme;
+    applyTheme(initialTheme);
 
-    themeToggle?.addEventListener('click', () => {
-        const currentMode = document.documentElement.dataset.themeMode || 'system';
-        const nextMode = themeModes[(themeModes.indexOf(currentMode) + 1) % themeModes.length];
-        localStorage.setItem('ams-theme', nextMode);
-        applyTheme(nextMode);
-    });
-
-    colorScheme.addEventListener('change', () => {
-        if (document.documentElement.dataset.themeMode === 'system') {
-            applyTheme('system');
-        }
-    });
-
-    window.addEventListener('storage', (event) => {
-        if (event.key === 'ams-theme') {
-            applyTheme(event.newValue || 'system');
-        }
+    themeSwitch?.addEventListener('click', () => {
+        const mode = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        applyTheme(mode);
+        saveTheme(mode);
     });
 
     document.querySelectorAll('form[data-confirm]').forEach((form) => {

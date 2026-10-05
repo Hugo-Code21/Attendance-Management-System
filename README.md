@@ -7,6 +7,7 @@ A PHP and MySQL attendance application for teachers and students. It uses plain 
 - Role-based sign-in using an account ID or username and password.
 - Account profile and secure self-service password changes.
 - Admin account CRUD for administrators, teachers, and students.
+- The admin account directory refreshes from MySQL every 15 seconds, so student records inserted directly into the database appear without a manual page reload.
 - Admin attendance overview and status correction across all classes.
 - Admin view of teacher attendance records.
 - Teachers see the XII RPL 2 student roster and daily submitted attendance.
@@ -14,6 +15,8 @@ A PHP and MySQL attendance application for teachers and students. It uses plain 
 - Students see their own profile and attendance history and can submit one attendance record per day.
 - Teachers and students manually submit their own attendance from **00:00 to 06:45 WIB**. Attendance is never generated automatically when someone does not submit.
 - Passwords are hashed, database access uses prepared statements, and state-changing forms use CSRF tokens.
+
+Database credentials are read by PHP from server environment variables (when set) or `.env`; they are never sent to the browser. A browser-facing API key would not secure the database because users can inspect browser code and network requests. `.env` is a protected configuration file, not an encrypted vault: use a dedicated least-privilege MySQL account, restrict filesystem access, and use your hosting provider's secret manager or server environment variables for production secrets. Apache serves a generic error message for uncaught exceptions and writes a minimal diagnostic location to the server error log instead of showing a stack trace.
 
 ## Requirements
 
@@ -31,7 +34,7 @@ A PHP and MySQL attendance application for teachers and students. It uses plain 
    C:\xampp\mysql\bin\mysql.exe -u root < "C:\xampp\htdocs\Attendance-Management-System\database\schema.sql"
    ```
 
-4. Review `config.php` and set the MySQL host, database, username, and password. The defaults match a typical local XAMPP install (`127.0.0.1`, database `ams_db`, user `root`, and a blank password).
+4. Copy `.env.example` to `.env` and set the MySQL host, database, username, and password. The local `.env` file is excluded from Git and blocked from direct Apache requests. The included `.env` starter matches a typical local XAMPP install (`127.0.0.1`, database `ams_db`, user `root`, and a blank password); replace these values with a dedicated MySQL account and password outside local development.
 5. Create the first administrator from a PowerShell prompt:
 
    ```powershell

@@ -5,6 +5,38 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/bootstrap.php';
 $admin = require_role('admin');
 
+if (($_GET['refresh'] ?? '') === '1' && $_SERVER['REQUEST_METHOD'] === 'GET') {
+    $refreshRole = (string) ($_GET['role'] ?? '');
+    $allowedRoles = ['admin', 'teacher', 'student'];
+    $accountsQuery = 'SELECT id, username, role, full_name, class_name, subject, is_active FROM users';
+    $parameters = [];
+    if (in_array($refreshRole, $allowedRoles, true)) {
+        $accountsQuery .= ' WHERE role = ?';
+        $parameters[] = $refreshRole;
+    }
+    $accountsQuery .= ' ORDER BY FIELD(role, "admin", "teacher", "student"), full_name';
+    $statement = db()->prepare($accountsQuery);
+    $statement->execute($parameters);
+    $refreshAccounts = $statement->fetchAll();
+    $refreshCounts = ['admin' => 0, 'teacher' => 0, 'student' => 0];
+    foreach ($refreshAccounts as $account) {
+        $refreshCounts[$account['role']]++;
+    }
+    if ($refreshRole !== '' && in_array($refreshRole, $allowedRoles, true)) {
+        $countStatement = db()->query('SELECT role, COUNT(*) AS total FROM users GROUP BY role');
+        foreach ($countStatement->fetchAll() as $roleCount) {
+            $refreshCounts[$roleCount['role']] = (int) $roleCount['total'];
+        }
+    }
+    header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-store, private');
+    echo json_encode(
+        ['accounts' => $refreshAccounts, 'counts' => $refreshCounts],
+        JSON_THROW_ON_ERROR
+    );
+    exit;
+}
+
 $errors = [];
 $editing = null;
 $editId = filter_input(INPUT_GET, 'edit', FILTER_VALIDATE_INT);
@@ -141,22 +173,25 @@ page_header('People & accounts');
     <a class="button button-primary" href="#account-form">+ Add account</a>
 </section>
 <section class="stat-grid">
-    <article class="stat-card"><span>Administrators</span><strong><?= $counts['admin'] ?></strong><small>Full system access</small></article>
-    <article class="stat-card"><span>Teachers</span><strong><?= $counts['teacher'] ?></strong><small>Class-scoped access</small></article>
-    <article class="stat-card"><span>Students</span><strong><?= $counts['student'] ?></strong><small>Personal attendance access</small></article>
+    <article class="stat-card"><span>Administrators</span><strong data-account-count="admin"><?= $counts['admin'] ?></strong><small>Full system access</small></article>
+    <article class="stat-card"><span>Teachers</span><strong data-account-count="teacher"><?= $counts['teacher'] ?></strong><small>Class-scoped access</small></article>
+    <article class="stat-card"><span>Students</span><strong data-account-count="student"><?= $counts['student'] ?></strong><small>Personal attendance access</small></article>
 </section>
 <?php if ($errors): ?><div class="alert alert-error"><strong>Please review:</strong>
         <ul><?php foreach ($errors as $error): ?><li><?= e($error) ?></li><?php endforeach; ?></ul>
     </div><?php endif; ?>
-<section class="panel">
+<section class="panel" data-live-accounts data-refresh-url="<?= e('users.php?refresh=1&role=' . $filter) ?>" data-csrf-token="<?= e(csrf_token()) ?>" data-admin-id="<?= e($admin['id']) ?>">
     <div class="panel-heading">
         <div>
             <p class="eyebrow">DIRECTORY</p>
             <h2>All accounts</h2>
         </div>
+        <div>
         <form method="get" class="filter-form"><label class="sr-only" for="role-filter">Filter by role</label><select id="role-filter" name="role" onchange="this.form.submit()">
                 <option value="">All roles</option><?php foreach ($allowedRoles as $role): ?><option value="<?= e($role) ?>" <?= $filter === $role ? 'selected' : '' ?>><?= e(ucfirst($role)) ?></option><?php endforeach; ?>
             </select></form>
+            <small class="muted" data-live-account-status aria-live="polite">Live updates every 15 seconds.</small>
+        </div>
     </div>
     <div class="table-wrap">
         <table>
@@ -170,7 +205,7 @@ page_header('People & accounts');
                     <th></th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody data-account-rows>
                 <?php foreach ($filteredAccounts as $account): ?><tr>
                         <td><strong><?= e($account['full_name']) ?></strong><small class="table-sub"><?= e($account['username']) ?></small></td>
                         <td>#<?= e($account['id']) ?></td>
